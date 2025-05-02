@@ -30,22 +30,28 @@ class Query:
             conditions = []
             for column, filters in where.items():
                 for operator, value in filters.items():
-                    if operator == "eq":
+                    if operator == "equals":
                         conditions.append(f"{column} = :{column}_value")
-                    elif operator == "dif":
+                    elif operator == "notEquals":
                         conditions.append(f"{column} != :{column}_value")
-                    elif operator == "maq":
+                    elif operator == "greaterThan":
                         conditions.append(f"{column} > :{column}_value")
-                    elif operator == "meq":
+                    elif operator == "lessThan":
                         conditions.append(f"{column} < :{column}_value")
-                    elif operator == "maig":
+                    elif operator == "greaterOrEquals":
                         conditions.append(f"{column} >= :{column}_value")
-                    elif operator == "meig":
+                    elif operator == "lessOrEquals":
                         conditions.append(f"{column} <= :{column}_value")
                     elif operator == "like":
                         conditions.append(f"{column} LIKE :{column}_value")
+                    elif operator == "notLike":
+                        conditions.append(f"{column} NOT LIKE :{column}_value")
                     elif operator == "in":
                         conditions.append(f"{column} IN :{column}_value")
+                    elif operator == "isNull":
+                        conditions.append(f"{column} IS NULL")
+                    elif operator == "isNotNull":
+                        conditions.append(f"{column} IS NOT NULL")
 
             if conditions:
                 where_clause = " AND ".join(conditions)
