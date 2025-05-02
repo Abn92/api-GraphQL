@@ -10,6 +10,12 @@ SQL_DIR = Path(__file__).resolve().parent.parent / "db" / "querys"
 JSON = strawberry.scalar(dict, name="JSON")
 
 
+@strawberry.input
+class OrderByInput:
+    field: str
+    direction: Optional[str] = "asc"
+
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -17,14 +23,12 @@ class Query:
         self,
         offset: int = 0,
         limit: int = 100,
-        order_by: Optional[str] = None,
+        order_by: Optional[OrderByInput] = None,
         order_direction: Optional[str] = "asc",
         where: Optional[JSON] = None
     ) -> List[JSON]:
         db = SessionLocal()
         sql_str = carregar_sql("get_all_itens.sql")
-
-        query = text(sql_str)
 
         if where:
             conditions = []
@@ -58,8 +62,8 @@ class Query:
                 sql_str = f"SELECT * FROM (SELECT * FROM ({sql_str}) subquery WHERE {where_clause}) subquery"
 
         if order_by:
-            direction = "DESC" if order_direction and order_direction.lower() == "desc" else "ASC"
-            sql_str = f"SELECT * FROM ({sql_str}) subquery ORDER BY {order_by} {direction}"
+            direction = "DESC" if order_by.direction and order_by.direction.lower() == "desc" else "ASC"
+            sql_str = f"SELECT * FROM ({sql_str}) subquery ORDER BY {order_by.field} {direction}"
 
         sql_str = f"{sql_str} OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"
 
